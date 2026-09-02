@@ -1,0 +1,1063 @@
+Build a complete, production-quality Gym Management mobile application called GymOS.
+
+IMPORTANT: Do not build a simple UI mockup. Build a functional application with real navigation, persistent data, forms, validation, business logic, and a clean architecture.
+
+PROJECT GOAL
+
+GymOS is a complete management application for a gym owner who also works as the receptionist.
+
+The owner/receptionist has full authority over the entire system.
+
+The application should help manage:
+
+- Members
+- Membership plans
+- Membership renewals
+- Payments
+- Attendance
+- Trainers
+- Reports
+- Notifications
+- Audit history
+- Future biometric/fingerprint integration
+
+The app should be designed primarily for Android mobile use but should have a responsive, modern, premium interface.
+
+---
+
+TECHNOLOGY
+
+Use the best stack supported by Replit for building a modern mobile application.
+
+Preferred architecture:
+
+- React Native with Expo if fully supported
+- TypeScript
+- Clean component architecture
+- Modern state management
+- PostgreSQL database if backend/database is available
+- Secure authentication
+- REST API or appropriate backend architecture
+- Modular code structure
+
+If a native mobile application cannot be reliably built in the current Replit environment, build a high-quality responsive mobile-first application/PWA with architecture that can later be migrated to React Native.
+
+Do not use unnecessary complexity.
+
+---
+
+DESIGN REQUIREMENTS
+
+Create an original, premium, modern gym-management application.
+
+The design should feel:
+
+- Professional
+- Modern
+- Fast
+- Premium
+- Clean
+- Easy for a busy receptionist to use
+
+Avoid copying the exact design, branding, logos, or assets of any existing application.
+
+Use:
+
+- Clean cards
+- Modern typography
+- Clear spacing
+- Professional icons
+- Easy-to-read financial information
+- Mobile-first layouts
+- Clear status indicators
+
+Support dark mode if practical, but prioritize a polished light theme first.
+
+Currency should use:
+
+PKR / Rs.
+
+Example:
+
+Rs. 5,000
+
+---
+
+USER AUTHORITY
+
+For Version 1, there is one primary user:
+
+OWNER / RECEPTIONIST
+
+The owner has complete authority to:
+
+- Add members
+- Edit members
+- Archive members
+- Create membership plans
+- Edit membership plans
+- Record payments
+- Edit payments
+- Delete payments
+- Manually extend memberships
+- Record attendance
+- Manage trainers
+- View reports
+- View audit history
+- Manage gym settings
+
+Build the architecture so additional roles can be added in the future.
+
+---
+
+APP NAVIGATION
+
+Use simple bottom navigation:
+
+1. Home
+2. Members
+3. Quick Action button
+4. Activity / Attendance
+5. More
+
+Quick Action should provide:
+
+- Add Member
+- Record Payment
+- Manual Check-In
+- Add Trainer
+
+The navigation must be intuitive and easy to use.
+
+---
+
+SCREEN 1 — SPLASH SCREEN
+
+Display:
+
+- GymOS logo
+- Gym name
+- Loading state
+
+Logic:
+
+Open App → Check authentication → Dashboard or Login.
+
+---
+
+SCREEN 2 — LOGIN
+
+Fields:
+
+- Email or phone number
+- Password
+
+Actions:
+
+- Login
+- Forgot Password
+
+Validate all inputs.
+
+---
+
+SCREEN 3 — FORGOT PASSWORD
+
+Allow the user to request password recovery.
+
+Include:
+
+- Email/phone input
+- Verification flow placeholder
+- New password form
+
+---
+
+SCREEN 4 — DASHBOARD
+
+This is the main control center.
+
+Display:
+
+Main Statistics
+
+- Total members
+- Active members
+- Today's attendance
+- Today's revenue
+- Monthly revenue
+- Memberships expiring soon
+
+Quick Actions
+
+- Add Member
+- Record Payment
+- Check Attendance
+- Search Member
+
+Smart Alerts
+
+Examples:
+
+- Membership expires in 3 days
+- Membership expired
+- New member added
+- Payment recorded
+
+Recent Activity
+
+Examples:
+
+- New member added
+- Payment recorded
+- Membership renewed
+- Membership extended
+
+Dashboard cards should be clickable where appropriate.
+
+---
+
+MEMBER MANAGEMENT
+
+SCREEN 5 — MEMBERS LIST
+
+Include:
+
+- Search by name
+- Search by phone number
+- Search by Member ID
+
+Filters:
+
+- All Members
+- Active
+- Expired
+- Expiring Soon
+- Archived
+
+Each member card should display:
+
+- Profile photo
+- Name
+- Member ID
+- Membership status
+- Expiry date
+
+---
+
+SCREEN 6 — ADD MEMBER
+
+Fields:
+
+Personal Information
+
+- Profile photo
+- Full name
+- Phone number
+- Gender
+- Date of birth
+- Address
+- Emergency contact
+
+Gym Information
+
+- Join date
+- Membership plan
+- Assigned trainer
+- Notes
+
+When saving a member:
+
+1. Create unique Member ID
+2. Save member
+3. Allow membership creation
+4. Proceed to payment if required
+
+---
+
+SCREEN 7 — MEMBER PROFILE
+
+Create a detailed member profile.
+
+Display:
+
+- Profile photo
+- Full name
+- Member ID
+- Phone number
+- Join date
+- Membership status
+- Membership plan
+- Expiry date
+- Trainer
+- Last visit
+
+Tabs:
+
+1. Overview
+2. Membership
+3. Payments
+4. Attendance
+
+Actions:
+
+- Edit Member
+- Record Payment
+- Renew Membership
+- Manually Extend Membership
+- Archive Member
+
+---
+
+SCREEN 8 — EDIT MEMBER
+
+Allow editing:
+
+- Profile photo
+- Name
+- Phone number
+- Address
+- Emergency contact
+- Trainer
+- Notes
+
+Record important changes in the audit history.
+
+---
+
+SCREEN 9 — ARCHIVE MEMBER
+
+Do NOT permanently delete members by default.
+
+Instead:
+
+- Archive Member
+- Preserve payment history
+- Preserve attendance history
+- Preserve audit history
+
+Allow restoring archived members later.
+
+---
+
+MEMBERSHIP MANAGEMENT
+
+SCREEN 10 — MEMBERSHIP PLANS
+
+Allow creation and management of plans.
+
+Example:
+
+Monthly
+Rs. 5,000
+30 Days
+
+Quarterly
+Rs. 13,500
+90 Days
+
+Yearly
+Rs. 50,000
+365 Days
+
+Actions:
+
+- Add Plan
+- Edit Plan
+- Archive/Delete Plan
+
+Do not allow deleting a plan if active members are currently dependent on it without handling that relationship safely.
+
+---
+
+SCREEN 11 — CREATE MEMBERSHIP
+
+Fields:
+
+- Member
+- Membership Plan
+- Start Date
+- End Date
+- Assigned Trainer
+
+Automatically calculate expiry date based on duration.
+
+---
+
+SCREEN 12 — RENEW MEMBERSHIP
+
+Workflow:
+
+Select Member
+→ Select Membership Plan
+→ Record Full Payment
+→ Renew Membership
+→ Update Expiry Date
+→ Create Audit Record
+
+---
+
+SCREEN 13 — MANUAL MEMBERSHIP EXTENSION
+
+Show:
+
+Current Expiry Date
+
+Allow:
+
+- Add 7 Days
+- Add 15 Days
+- Add 30 Days
+- Custom Number of Days
+- Custom Expiry Date
+
+Require:
+
+Reason for Extension
+
+Store:
+
+- Old expiry date
+- New expiry date
+- Extension reason
+- Date/time
+- User who made the change
+
+---
+
+PAYMENT SYSTEM
+
+IMPORTANT BUSINESS RULE:
+
+NO PARTIAL PAYMENTS
+
+A membership payment must be fully paid.
+
+Do not implement:
+
+- Installments
+- Remaining balances
+- Partial payment tracking
+
+---
+
+SCREEN 14 — RECORD PAYMENT
+
+Fields:
+
+- Member
+- Membership
+- Full payment amount
+- Payment method
+- Payment date
+- Notes
+
+Payment methods:
+
+- Cash
+- Easypaisa
+- JazzCash
+- Bank Transfer
+- Card
+
+Generate:
+
+- Unique Transaction ID
+- Unique Receipt Number
+- Timestamp
+
+Create an audit record.
+
+---
+
+SCREEN 15 — PAYMENT SUCCESS / RECEIPT
+
+Display:
+
+Payment Successful
+
+- Receipt number
+- Member name
+- Amount
+- Payment method
+- Date/time
+
+Actions:
+
+- Share Receipt
+- Print/Download Receipt if supported
+- Done
+
+---
+
+SCREEN 16 — PAYMENTS LIST
+
+Include:
+
+- Search by member
+- Search by receipt number
+
+Filters:
+
+- Today
+- This Week
+- This Month
+- Custom Date
+- Payment Method
+
+Display:
+
+- Member
+- Amount
+- Method
+- Date/time
+- Receipt number
+
+---
+
+SCREEN 17 — PAYMENT DETAILS
+
+Display:
+
+- Member
+- Membership
+- Amount
+- Receipt number
+- Transaction ID
+- Payment method
+- Date
+- Notes
+- Created by
+
+Actions:
+
+- Edit Payment
+- Delete Payment
+
+---
+
+SCREEN 18 — EDIT PAYMENT
+
+The owner/receptionist can edit payment records.
+
+Allow editing:
+
+- Payment date
+- Payment method
+- Notes
+- Other safe payment details
+
+For every edit, create an audit record containing:
+
+- Previous value
+- New value
+- Edited date/time
+- User
+
+---
+
+SCREEN 19 — DELETE PAYMENT
+
+Only the owner/receptionist can delete payments.
+
+Require confirmation:
+
+Delete Payment?
+
+Show:
+
+- Member name
+- Payment amount
+- Receipt number
+
+Require:
+
+Reason for deletion
+
+IMPORTANT:
+
+Do not permanently erase the record from the database.
+
+Mark it as:
+
+DELETED / VOIDED
+
+Keep it in audit history with:
+
+- Original amount
+- Original details
+- Deletion reason
+- Deleted date/time
+
+Deleted payments must not count toward revenue.
+
+---
+
+ATTENDANCE
+
+SCREEN 20 — ATTENDANCE DASHBOARD
+
+Display:
+
+- Today's check-ins
+- Currently active members
+- Recent check-ins
+
+Filters:
+
+- Today
+- Yesterday
+- This Week
+- Custom Date
+
+Show:
+
+- Member
+- Check-in time
+- Check-out time if available
+
+---
+
+SCREEN 21 — MEMBER ATTENDANCE HISTORY
+
+Display:
+
+- Visit date
+- Check-in time
+- Check-out time
+
+Statistics:
+
+- Visits this month
+- Last visit
+- Total visits
+
+---
+
+SCREEN 22 — MANUAL ATTENDANCE
+
+Until biometric hardware is integrated:
+
+Search:
+
+- Member name
+- Phone
+- Member ID
+
+Action:
+
+CHECK IN
+
+Before check-in, verify membership status.
+
+If:
+
+ACTIVE → Allow
+
+EXPIRED → Show warning and configurable behavior
+
+The system must be architected so biometric attendance events can later create attendance records automatically.
+
+---
+
+SCREEN 23 — BIOMETRIC PLACEHOLDER
+
+Create a future-ready biometric section.
+
+Display:
+
+Biometric Attendance
+
+Status:
+
+Hardware Not Connected
+
+Device:
+
+Not Selected
+
+Future fields:
+
+- Device name
+- Device ID
+- Device User ID
+- Connection status
+
+IMPORTANT:
+
+Do not attempt to store raw fingerprints.
+
+The future biometric device will handle fingerprint recognition.
+
+Our app will connect:
+
+Biometric Device User ID → Gym Member ID → Attendance Record
+
+---
+
+TRAINER MANAGEMENT
+
+SCREEN 24 — TRAINERS LIST
+
+Display:
+
+- Profile photo
+- Trainer name
+- Phone number
+- Number of assigned members
+
+Actions:
+
+- Add Trainer
+- Edit Trainer
+- View Trainer Profile
+
+---
+
+SCREEN 25 — ADD / EDIT TRAINER
+
+Fields:
+
+- Profile photo
+- Full name
+- Phone
+- Specialization
+- Notes
+
+---
+
+SCREEN 26 — TRAINER PROFILE
+
+Display:
+
+- Trainer information
+- Assigned members
+- Active member count
+
+Prepare architecture for future:
+
+- Personal training sessions
+- Commission
+- Trainer performance analytics
+
+---
+
+REPORTS
+
+SCREEN 27 — REPORTS DASHBOARD
+
+Display:
+
+Revenue
+
+- Today
+- This Week
+- This Month
+
+Members
+
+- Total
+- Active
+- New
+- Expired
+
+Attendance
+
+- Today
+- Weekly
+- Monthly
+
+---
+
+SCREEN 28 — REVENUE REPORT
+
+Allow:
+
+- Daily
+- Weekly
+- Monthly
+- Custom date range
+
+Show:
+
+- Total revenue
+- Number of valid payments
+- Payment method breakdown
+
+Do not include deleted/voided payments.
+
+---
+
+SCREEN 29 — MEMBERSHIP REPORT
+
+Show:
+
+- Active memberships
+- Expiring soon
+- Expired
+- New memberships
+- Renewals
+- Manual extensions
+
+---
+
+SCREEN 30 — ATTENDANCE REPORT
+
+Show:
+
+- Daily attendance
+- Weekly attendance
+- Monthly attendance
+- Most active members
+- Members who have not visited recently
+
+---
+
+NOTIFICATIONS
+
+SCREEN 31 — NOTIFICATIONS
+
+Show notifications such as:
+
+- Membership expiring soon
+- Membership expired
+- New member added
+- Payment recorded
+- Membership renewed
+- Membership manually extended
+
+Tapping a notification should navigate to the relevant member or record.
+
+---
+
+SETTINGS
+
+SCREEN 32 — SETTINGS
+
+Sections:
+
+Gym Profile
+
+- Gym name
+- Logo
+- Phone number
+- Address
+
+Membership
+
+- Manage membership plans
+
+Attendance
+
+- Biometric integration placeholder
+
+Notifications
+
+- Expiry reminder settings
+
+Account
+
+- Change password
+- Logout
+
+---
+
+SCREEN 33 — GLOBAL SEARCH
+
+Allow searching across:
+
+- Member name
+- Phone number
+- Member ID
+- Receipt number
+
+Results should be fast and clearly categorized.
+
+---
+
+SCREEN 34 — QUICK ACTION MENU
+
+Display:
+
+- Add Member
+- Record Payment
+- Manual Check-In
+- Add Trainer
+- Search Member
+
+---
+
+SCREEN 35 — AUDIT HISTORY
+
+Create a professional activity log.
+
+Record:
+
+- Member created
+- Member edited
+- Member archived
+- Membership created
+- Membership renewed
+- Membership manually extended
+- Payment created
+- Payment edited
+- Payment deleted/voided
+
+Each audit record should contain:
+
+- Action
+- Related member/payment
+- Previous value where applicable
+- New value where applicable
+- Date/time
+- User
+
+---
+
+DATABASE REQUIREMENTS
+
+Create a clean relational database architecture.
+
+Recommended core entities:
+
+- gyms
+- users
+- members
+- trainers
+- membership_plans
+- memberships
+- payments
+- attendance_records
+- biometric_devices
+- notifications
+- audit_logs
+
+Use proper relationships and foreign keys.
+
+IMPORTANT:
+
+Do not store payment information only inside the member record.
+
+Payments must be independent records connected to members and memberships.
+
+---
+
+IMPORTANT BUSINESS LOGIC
+
+Membership Status
+
+Possible statuses:
+
+- Active
+- Expiring Soon
+- Expired
+- Archived
+
+Payment Status
+
+Version 1:
+
+- Completed
+- Deleted/Void
+
+No:
+
+- Partial
+- Pending installment
+- Refund
+
+Member Deletion
+
+Archive rather than permanently delete.
+
+Payment Deletion
+
+Soft-delete/void the payment and preserve audit history.
+
+Manual Extension
+
+Always record:
+
+- Previous expiry
+- New expiry
+- Reason
+- Date/time
+
+---
+
+FUTURE BIOMETRIC ARCHITECTURE
+
+Prepare the database and code architecture for future fingerprint hardware.
+
+Create an abstraction layer so future devices can integrate without rewriting attendance logic.
+
+Future workflow:
+
+Fingerprint Device
+→ Device identifies biometric user
+→ Device sends Member Device ID
+→ Backend matches Device User ID
+→ Attendance record created
+→ Mobile app updates
+
+For now, use mock biometric status only.
+
+---
+
+CODE QUALITY REQUIREMENTS
+
+- Use TypeScript
+- Use reusable components
+- Keep business logic separate from UI
+- Use modular architecture
+- Add form validation
+- Add loading states
+- Add empty states
+- Add error states
+- Handle offline/network errors gracefully
+- Use secure authentication
+- Do not hardcode sensitive credentials
+- Use environment variables
+- Create clean naming conventions
+- Add comments only where useful
+
+---
+
+DEMO DATA
+
+Create realistic sample data so the application looks functional immediately.
+
+Include approximately:
+
+- 15 sample members
+- 3 trainers
+- 3 membership plans
+- Sample payments
+- Sample attendance records
+- Sample notifications
+- Sample audit logs
+
+Use fictional names and data.
+
+---
+
+FINAL EXPECTATION
+
+Build a functional, polished Gym Management application, not just static screens.
+
+The core workflow must work:
+
+ADD MEMBER
+→ CREATE MEMBERSHIP
+→ RECORD FULL PAYMENT
+→ ACTIVATE MEMBER
+→ RECORD ATTENDANCE
+→ VIEW MEMBER HISTORY
+→ RENEW MEMBERSHIP
+→ VIEW REPORTS
+
+Make the application visually premium, easy to use, and structured so biometric fingerprint hardware and additional user roles can be added later.
+
+Start by creating the complete project structure and core data models. Then build the application feature by feature.
+
+Do not stop after creating a homepage or mock dashboard. Continue implementing all core screens and workflows described above.

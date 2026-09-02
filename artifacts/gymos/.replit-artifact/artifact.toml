@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/gymos/"
+title = "GymOS"
+description = "A premium mobile-first gym management app for owners and receptionists to manage members, memberships, full payments, attendance, trainers, reports, alerts, and audit history."
+version = "1.0.0"
+id = "artifacts/gymos"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/gymos/" ]
+localPort = 23540
+
+[services.development]
+run = "pnpm --filter @workspace/gymos run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/gymos", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/gymos", "run", "serve" ]
+
+[services.env]
+PORT = "23540"
+BASE_PATH = "/gymos/"
