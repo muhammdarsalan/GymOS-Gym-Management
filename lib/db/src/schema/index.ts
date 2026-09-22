@@ -1,20 +1,20 @@
-// Export your models here. Add one export per file
-// export * from "./posts";
+// GymOS database schema.
 //
-// Each model/table should ideally be split into different files.
-// Each model/table should define a Drizzle table, insert schema, and types:
-//
-//   import { pgTable, text, serial } from "drizzle-orm/pg-core";
-//   import { createInsertSchema } from "drizzle-zod";
-//   import { z } from "zod/v4";
-//
-//   export const postsTable = pgTable("posts", {
-//     id: serial("id").primaryKey(),
-//     title: text("title").notNull(),
-//   });
-//
-//   export const insertPostSchema = createInsertSchema(postsTable).omit({ id: true });
-//   export type InsertPost = z.infer<typeof insertPostSchema>;
-//   export type Post = typeof postsTable.$inferSelect;
+// Every business table is scoped to a gym via a `gymId` foreign key back to
+// gymsTable — that's what makes gym/workspace isolation enforceable once the
+// API filters every query by the authenticated request's gym id (see the
+// auth phase). Table shapes are modeled directly on the existing app types
+// in artifacts/gymos/lib/gymos-data.ts so the API layer can map between them
+// with minimal translation.
 
-export {}
+export * from "./gyms";
+export * from "./users";
+export * from "./plans";
+export * from "./trainers";
+export * from "./members";
+export * from "./memberships";
+export * from "./payments";
+export * from "./attendance";
+export * from "./audit-logs";
+export * from "./notifications";
+export * from "./relations";
