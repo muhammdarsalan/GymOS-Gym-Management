@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: plans
+    description: Membership plan operations
+  - name: trainers
+    description: Trainer operations
+  - name: members
+    description: Member operations
 paths:
   /healthz:
     get:
@@ -24,7 +30,215 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /plans:
+    get:
+      operationId: listPlans
+      tags: [plans]
+      summary: List plans for the signed-in gym
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createPlan
+      tags: [plans]
+      summary: Create a plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlanInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /plans/{id}/toggle:
+    patch:
+      operationId: togglePlan
+      tags: [plans]
+      summary: Toggle a plan's active flag
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /trainers:
+    get:
+      operationId: listTrainers
+      tags: [trainers]
+      summary: List trainers for the signed-in gym
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trainer"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createTrainer
+      tags: [trainers]
+      summary: Add a trainer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainerInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trainer"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List members for the signed-in gym
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createMember
+      tags: [members]
+      summary: Add a member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /members/{id}:
+    get:
+      operationId: getMember
+      tags: [members]
+      summary: Get one member
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateMember
+      tags: [members]
+      summary: Update a member's details
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberPatch"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /members/{id}/archive:
+    patch:
+      operationId: archiveMember
+      tags: [members]
+      summary: Archive or restore a member
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArchiveInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  responses:
+    Unauthorized:
+      description: Not signed in
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorBody"
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorBody"
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +247,165 @@ components:
           type: string
       required:
         - status
+    ApiErrorBody:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    ArchiveInput:
+      type: object
+      properties:
+        archived:
+          type: boolean
+      required: [archived]
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        durationDays:
+          type: number
+        active:
+          type: boolean
+      required: [id, name, price, durationDays, active]
+    PlanInput:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+        durationDays:
+          type: number
+        active:
+          type: boolean
+      required: [name, price, durationDays]
+    Trainer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        specialization:
+          type: string
+        notes:
+          type: string
+      required: [id, name, phone, specialization, notes]
+    TrainerInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        specialization:
+          type: string
+        notes:
+          type: string
+      required: [name]
+    Membership:
+      type: object
+      properties:
+        id:
+          type: string
+        planId:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+      required: [id, planId, startDate, endDate]
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+        memberCode:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+        dob:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+        emergencyContact:
+          type: string
+        joinDate:
+          type: string
+          format: date-time
+        trainerId:
+          type: string
+          nullable: true
+        notes:
+          type: string
+        archived:
+          type: boolean
+        membership:
+          anyOf:
+            - $ref: "#/components/schemas/Membership"
+            - type: "null"
+      required:
+        [id, memberCode, name, phone, gender, address, emergencyContact, joinDate, notes, archived]
+    MemberInput:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+        dob:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+        emergencyContact:
+          type: string
+        trainerId:
+          type: string
+          nullable: true
+        notes:
+          type: string
+      required: [name]
+    MemberPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        gender:
+          type: string
+        dob:
+          type: string
+          format: date-time
+          nullable: true
+        address:
+          type: string
+        emergencyContact:
+          type: string
+        trainerId:
+          type: string
+          nullable: true
+        notes:
+          type: string
 

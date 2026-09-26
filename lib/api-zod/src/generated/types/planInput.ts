@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface PlanInput {
+  name: string;
+  price: number;
+  durationDays: number;
+  active?: boolean;
 }

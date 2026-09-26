@@ -5,7 +5,9 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ApiErrorBody } from './apiErrorBody';
 
-export interface HealthStatus {
-  status: string;
-}
+/**
+ * Not signed in
+ */
+export type UnauthorizedResponse = ApiErrorBody;
