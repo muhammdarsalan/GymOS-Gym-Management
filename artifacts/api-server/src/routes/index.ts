@@ -4,6 +4,8 @@ import meRouter from "./me";
 import plansRouter from "./plans";
 import trainersRouter from "./trainers";
 import membersRouter from "./members";
+import paymentsRouter from "./payments";
+import attendanceRouter from "./attendance";
 
 const router: IRouter = Router();
 
@@ -12,5 +14,7 @@ router.use(meRouter);
 router.use(plansRouter);
 router.use(trainersRouter);
 router.use(membersRouter);
+router.use(paymentsRouter);
+router.use(attendanceRouter);
 
 export default router;

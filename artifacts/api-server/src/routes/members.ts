@@ -10,6 +10,8 @@ import {
   UpdateMemberResponse,
   ArchiveMemberBody,
   ArchiveMemberResponse,
+  UpsertMembershipBody,
+  UpsertMembershipResponse,
 } from "@workspace/api-zod";
 import { requireGym, type AuthenticatedRequest } from "../middlewares/require-gym";
 import { makeId } from "../lib/make-id";
@@ -139,6 +141,63 @@ router.patch("/members/:id/archive", requireGym, async (req, res, next) => {
     });
 
     res.json(ArchiveMemberResponse.parse({ ...updated, membership: membership ?? null }));
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Upserts the member's one current membership (unique on memberId - no
+// renewal history in this table, payments.membershipId carries that
+// trail). Given its own route rather than folded into the generic PATCH
+// above, since memberships live in their own table with their own shape.
+router.patch("/members/:id/membership", requireGym, async (req, res, next) => {
+  try {
+    const { gym } = req as AuthenticatedRequest;
+    const body = UpsertMembershipBody.parse(req.body);
+
+    const member = await db.query.membersTable.findFirst({
+      where: and(eq(membersTable.id, req.params.id as string), eq(membersTable.gymId, gym.id)),
+    });
+    if (!member) {
+      res.status(404).json({ error: "Member not found" });
+      return;
+    }
+
+    const existing = await db.query.membershipsTable.findFirst({
+      where: eq(membershipsTable.memberId, member.id),
+    });
+
+    if (existing) {
+      await db
+        .update(membershipsTable)
+        .set({ planId: body.planId, startDate: body.startDate, endDate: body.endDate })
+        .where(eq(membershipsTable.id, existing.id));
+    } else {
+      await db.insert(membershipsTable).values({
+        id: makeId("membership"),
+        gymId: gym.id,
+        memberId: member.id,
+        planId: body.planId,
+        startDate: body.startDate,
+        endDate: body.endDate,
+      });
+    }
+
+    // On the client, renewing a membership goes through
+    // updateMember(id, {membership:{...}}), which logs a generic "Member
+    // edited" entry - matched here for parity even though this is now
+    // its own dedicated route.
+    await recordAudit(gym.id, {
+      action: "Member edited",
+      detail: "Member profile details were updated",
+      memberId: member.id,
+    });
+
+    const membership = await db.query.membershipsTable.findFirst({
+      where: eq(membershipsTable.memberId, member.id),
+    });
+
+    res.json(UpsertMembershipResponse.parse({ ...member, membership: membership ?? null }));
   } catch (err) {
     next(err);
   }

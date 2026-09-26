@@ -16,6 +16,10 @@ tags:
     description: Trainer operations
   - name: members
     description: Member operations
+  - name: payments
+    description: Payment operations
+  - name: attendance
+    description: Attendance operations
 paths:
   /healthz:
     get:
@@ -218,6 +222,152 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /members/{id}/membership:
+    patch:
+      operationId: upsertMembership
+      tags: [members]
+      summary: Assign or renew a member's membership
+      description: >-
+        Upserts the member's single current membership (one active
+        membership per member, no renewal history in this table -
+        payments.membershipId is what records the renewal trail).
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MembershipInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      summary: List payments for the signed-in gym
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createPayment
+      tags: [payments]
+      summary: Record a full payment
+      description: >-
+        Full payment only - no partial payments. Server generates
+        receiptNumber/transactionId and sets status to completed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /payments/{id}/void:
+    patch:
+      operationId: voidPayment
+      tags: [payments]
+      summary: Void a payment
+      description: >-
+        Void-only - payments are never edited or deleted, status only
+        ever moves completed -> voided.
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VoidPaymentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /attendance:
+    get:
+      operationId: listAttendance
+      tags: [attendance]
+      summary: List attendance records for the signed-in gym
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Attendance"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createAttendance
+      tags: [attendance]
+      summary: Record a manual check-in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendanceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /attendance/{id}/checkout:
+    patch:
+      operationId: checkoutAttendance
+      tags: [attendance]
+      summary: Record a check-out
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Attendance"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
   parameters:
     IdParam:
@@ -409,3 +559,90 @@ components:
         notes:
           type: string
 
+    MembershipInput:
+      type: object
+      properties:
+        planId:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+      required: [planId, startDate, endDate]
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        receiptNumber:
+          type: string
+        transactionId:
+          type: string
+        memberId:
+          type: string
+        membershipId:
+          type: string
+          nullable: true
+        amount:
+          type: number
+        method:
+          type: string
+          enum: [Cash, Easypaisa, JazzCash, "Bank Transfer", Card]
+        date:
+          type: string
+          format: date-time
+        notes:
+          type: string
+        status:
+          type: string
+          enum: [completed, voided]
+      required:
+        [id, receiptNumber, transactionId, memberId, amount, method, date, notes, status]
+    PaymentInput:
+      type: object
+      properties:
+        memberId:
+          type: string
+        membershipId:
+          type: string
+          nullable: true
+        amount:
+          type: number
+        method:
+          type: string
+          enum: [Cash, Easypaisa, JazzCash, "Bank Transfer", Card]
+        notes:
+          type: string
+      required: [memberId, amount, method]
+    VoidPaymentInput:
+      type: object
+      properties:
+        reason:
+          type: string
+      required: [reason]
+    Attendance:
+      type: object
+      properties:
+        id:
+          type: string
+        memberId:
+          type: string
+        checkIn:
+          type: string
+          format: date-time
+        checkOut:
+          type: string
+          format: date-time
+          nullable: true
+        source:
+          type: string
+          enum: [manual, biometric]
+      required: [id, memberId, checkIn, source]
+    AttendanceInput:
+      type: object
+      properties:
+        memberId:
+          type: string
+      required: [memberId]

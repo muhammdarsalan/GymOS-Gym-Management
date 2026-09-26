@@ -261,3 +261,154 @@ export const ArchiveMemberResponse = zod.object({
 })
 
 
+/**
+ * Upserts the member's single current membership (one active membership per member, no renewal history in this table - payments.membershipId is what records the renewal trail).
+ * @summary Assign or renew a member's membership
+ */
+export const UpsertMembershipParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const UpsertMembershipBody = zod.object({
+  "planId": zod.string(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date()
+})
+
+export const UpsertMembershipResponse = zod.object({
+  "id": zod.string(),
+  "memberCode": zod.string(),
+  "name": zod.string(),
+  "phone": zod.string(),
+  "gender": zod.string(),
+  "dob": zod.coerce.date().nullish(),
+  "address": zod.string(),
+  "emergencyContact": zod.string(),
+  "joinDate": zod.coerce.date(),
+  "trainerId": zod.string().nullish(),
+  "notes": zod.string(),
+  "archived": zod.boolean(),
+  "membership": zod.union([zod.object({
+  "id": zod.string(),
+  "planId": zod.string(),
+  "startDate": zod.coerce.date(),
+  "endDate": zod.coerce.date()
+}),zod.null()]).optional()
+})
+
+
+/**
+ * @summary List payments for the signed-in gym
+ */
+export const ListPaymentsResponseItem = zod.object({
+  "id": zod.string(),
+  "receiptNumber": zod.string(),
+  "transactionId": zod.string(),
+  "memberId": zod.string(),
+  "membershipId": zod.string().nullish(),
+  "amount": zod.number(),
+  "method": zod.enum(['Cash', 'Easypaisa', 'JazzCash', 'Bank Transfer', 'Card']),
+  "date": zod.coerce.date(),
+  "notes": zod.string(),
+  "status": zod.enum(['completed', 'voided'])
+})
+export const ListPaymentsResponse = zod.array(ListPaymentsResponseItem)
+
+
+/**
+ * Full payment only - no partial payments. Server generates receiptNumber/transactionId and sets status to completed.
+ * @summary Record a full payment
+ */
+export const CreatePaymentBody = zod.object({
+  "memberId": zod.string(),
+  "membershipId": zod.string().nullish(),
+  "amount": zod.number(),
+  "method": zod.enum(['Cash', 'Easypaisa', 'JazzCash', 'Bank Transfer', 'Card']),
+  "notes": zod.string().optional()
+})
+
+export const CreatePaymentResponse = zod.object({
+  "id": zod.string(),
+  "receiptNumber": zod.string(),
+  "transactionId": zod.string(),
+  "memberId": zod.string(),
+  "membershipId": zod.string().nullish(),
+  "amount": zod.number(),
+  "method": zod.enum(['Cash', 'Easypaisa', 'JazzCash', 'Bank Transfer', 'Card']),
+  "date": zod.coerce.date(),
+  "notes": zod.string(),
+  "status": zod.enum(['completed', 'voided'])
+})
+
+
+/**
+ * Void-only - payments are never edited or deleted, status only ever moves completed -> voided.
+ * @summary Void a payment
+ */
+export const VoidPaymentParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const VoidPaymentBody = zod.object({
+  "reason": zod.string()
+})
+
+export const VoidPaymentResponse = zod.object({
+  "id": zod.string(),
+  "receiptNumber": zod.string(),
+  "transactionId": zod.string(),
+  "memberId": zod.string(),
+  "membershipId": zod.string().nullish(),
+  "amount": zod.number(),
+  "method": zod.enum(['Cash', 'Easypaisa', 'JazzCash', 'Bank Transfer', 'Card']),
+  "date": zod.coerce.date(),
+  "notes": zod.string(),
+  "status": zod.enum(['completed', 'voided'])
+})
+
+
+/**
+ * @summary List attendance records for the signed-in gym
+ */
+export const ListAttendanceResponseItem = zod.object({
+  "id": zod.string(),
+  "memberId": zod.string(),
+  "checkIn": zod.coerce.date(),
+  "checkOut": zod.coerce.date().nullish(),
+  "source": zod.enum(['manual', 'biometric'])
+})
+export const ListAttendanceResponse = zod.array(ListAttendanceResponseItem)
+
+
+/**
+ * @summary Record a manual check-in
+ */
+export const CreateAttendanceBody = zod.object({
+  "memberId": zod.string()
+})
+
+export const CreateAttendanceResponse = zod.object({
+  "id": zod.string(),
+  "memberId": zod.string(),
+  "checkIn": zod.coerce.date(),
+  "checkOut": zod.coerce.date().nullish(),
+  "source": zod.enum(['manual', 'biometric'])
+})
+
+
+/**
+ * @summary Record a check-out
+ */
+export const CheckoutAttendanceParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const CheckoutAttendanceResponse = zod.object({
+  "id": zod.string(),
+  "memberId": zod.string(),
+  "checkIn": zod.coerce.date(),
+  "checkOut": zod.coerce.date().nullish(),
+  "source": zod.enum(['manual', 'biometric'])
+})
+
+

@@ -21,16 +21,22 @@ import type {
 
 import type {
   ArchiveInput,
+  Attendance,
+  AttendanceInput,
   HealthStatus,
   Member,
   MemberInput,
   MemberPatch,
+  MembershipInput,
   NotFoundResponse,
+  Payment,
+  PaymentInput,
   Plan,
   PlanInput,
   Trainer,
   TrainerInput,
-  UnauthorizedResponse
+  UnauthorizedResponse,
+  VoidPaymentInput
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -872,5 +878,519 @@ export const useArchiveMember = <TError = ErrorType<UnauthorizedResponse | NotFo
         TContext
       > => {
       return useMutation(getArchiveMemberMutationOptions(options));
+    }
+
+export const getUpsertMembershipUrl = (id: string,) => {
+
+
+
+
+  return `/api/members/${id}/membership`
+}
+
+/**
+ * Upserts the member's single current membership (one active membership per member, no renewal history in this table - payments.membershipId is what records the renewal trail).
+ * @summary Assign or renew a member's membership
+ */
+export const upsertMembership = async (id: string,
+    membershipInput: MembershipInput, options?: Parameters<typeof customFetch>[1]): Promise<Member> => {
+
+  return customFetch<Member>(getUpsertMembershipUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(membershipInput)
+  }
+);}
+
+
+
+
+
+export const getUpsertMembershipMutationOptions = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertMembership>>, TError,{id: string;data: BodyType<MembershipInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upsertMembership>>, TError,{id: string;data: BodyType<MembershipInput>}, TContext> => {
+
+const mutationKey = ['upsertMembership'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertMembership>>, {id: string;data: BodyType<MembershipInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  upsertMembership(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertMembershipMutationResult = NonNullable<Awaited<ReturnType<typeof upsertMembership>>>
+    export type UpsertMembershipMutationBody = BodyType<MembershipInput>
+    export type UpsertMembershipMutationError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Assign or renew a member's membership
+ */
+export const useUpsertMembership = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertMembership>>, TError,{id: string;data: BodyType<MembershipInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertMembership>>,
+        TError,
+        {id: string;data: BodyType<MembershipInput>},
+        TContext
+      > => {
+      return useMutation(getUpsertMembershipMutationOptions(options));
+    }
+
+export const getListPaymentsUrl = () => {
+
+
+
+
+  return `/api/payments`
+}
+
+/**
+ * @summary List payments for the signed-in gym
+ */
+export const listPayments = async ( options?: Parameters<typeof customFetch>[1]): Promise<Payment[]> => {
+
+  return customFetch<Payment[]>(getListPaymentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPaymentsQueryKey = () => {
+    return [
+    `/api/payments`
+    ] as const;
+    }
+
+
+export const getListPaymentsQueryOptions = <TData = Awaited<ReturnType<typeof listPayments>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPayments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPaymentsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPayments>>> = ({ signal }) => listPayments({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPayments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPaymentsQueryResult = NonNullable<Awaited<ReturnType<typeof listPayments>>>
+export type ListPaymentsQueryError = ErrorType<UnauthorizedResponse>
+
+
+/**
+ * @summary List payments for the signed-in gym
+ */
+
+export function useListPayments<TData = Awaited<ReturnType<typeof listPayments>>, TError = ErrorType<UnauthorizedResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPayments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPaymentsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreatePaymentUrl = () => {
+
+
+
+
+  return `/api/payments`
+}
+
+/**
+ * Full payment only - no partial payments. Server generates receiptNumber/transactionId and sets status to completed.
+ * @summary Record a full payment
+ */
+export const createPayment = async (paymentInput: PaymentInput, options?: Parameters<typeof customFetch>[1]): Promise<Payment> => {
+
+  return customFetch<Payment>(getCreatePaymentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(paymentInput)
+  }
+);}
+
+
+
+
+
+export const getCreatePaymentMutationOptions = <TError = ErrorType<UnauthorizedResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPayment>>, TError,{data: BodyType<PaymentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPayment>>, TError,{data: BodyType<PaymentInput>}, TContext> => {
+
+const mutationKey = ['createPayment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPayment>>, {data: BodyType<PaymentInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPayment(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePaymentMutationResult = NonNullable<Awaited<ReturnType<typeof createPayment>>>
+    export type CreatePaymentMutationBody = BodyType<PaymentInput>
+    export type CreatePaymentMutationError = ErrorType<UnauthorizedResponse>
+
+    /**
+ * @summary Record a full payment
+ */
+export const useCreatePayment = <TError = ErrorType<UnauthorizedResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPayment>>, TError,{data: BodyType<PaymentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createPayment>>,
+        TError,
+        {data: BodyType<PaymentInput>},
+        TContext
+      > => {
+      return useMutation(getCreatePaymentMutationOptions(options));
+    }
+
+export const getVoidPaymentUrl = (id: string,) => {
+
+
+
+
+  return `/api/payments/${id}/void`
+}
+
+/**
+ * Void-only - payments are never edited or deleted, status only ever moves completed -> voided.
+ * @summary Void a payment
+ */
+export const voidPayment = async (id: string,
+    voidPaymentInput: VoidPaymentInput, options?: Parameters<typeof customFetch>[1]): Promise<Payment> => {
+
+  return customFetch<Payment>(getVoidPaymentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(voidPaymentInput)
+  }
+);}
+
+
+
+
+
+export const getVoidPaymentMutationOptions = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof voidPayment>>, TError,{id: string;data: BodyType<VoidPaymentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof voidPayment>>, TError,{id: string;data: BodyType<VoidPaymentInput>}, TContext> => {
+
+const mutationKey = ['voidPayment'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof voidPayment>>, {id: string;data: BodyType<VoidPaymentInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  voidPayment(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VoidPaymentMutationResult = NonNullable<Awaited<ReturnType<typeof voidPayment>>>
+    export type VoidPaymentMutationBody = BodyType<VoidPaymentInput>
+    export type VoidPaymentMutationError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Void a payment
+ */
+export const useVoidPayment = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof voidPayment>>, TError,{id: string;data: BodyType<VoidPaymentInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof voidPayment>>,
+        TError,
+        {id: string;data: BodyType<VoidPaymentInput>},
+        TContext
+      > => {
+      return useMutation(getVoidPaymentMutationOptions(options));
+    }
+
+export const getListAttendanceUrl = () => {
+
+
+
+
+  return `/api/attendance`
+}
+
+/**
+ * @summary List attendance records for the signed-in gym
+ */
+export const listAttendance = async ( options?: Parameters<typeof customFetch>[1]): Promise<Attendance[]> => {
+
+  return customFetch<Attendance[]>(getListAttendanceUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAttendanceQueryKey = () => {
+    return [
+    `/api/attendance`
+    ] as const;
+    }
+
+
+export const getListAttendanceQueryOptions = <TData = Awaited<ReturnType<typeof listAttendance>>, TError = ErrorType<UnauthorizedResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAttendance>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAttendanceQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAttendance>>> = ({ signal }) => listAttendance({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAttendance>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAttendanceQueryResult = NonNullable<Awaited<ReturnType<typeof listAttendance>>>
+export type ListAttendanceQueryError = ErrorType<UnauthorizedResponse>
+
+
+/**
+ * @summary List attendance records for the signed-in gym
+ */
+
+export function useListAttendance<TData = Awaited<ReturnType<typeof listAttendance>>, TError = ErrorType<UnauthorizedResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAttendance>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAttendanceQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateAttendanceUrl = () => {
+
+
+
+
+  return `/api/attendance`
+}
+
+/**
+ * @summary Record a manual check-in
+ */
+export const createAttendance = async (attendanceInput: AttendanceInput, options?: Parameters<typeof customFetch>[1]): Promise<Attendance> => {
+
+  return customFetch<Attendance>(getCreateAttendanceUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(attendanceInput)
+  }
+);}
+
+
+
+
+
+export const getCreateAttendanceMutationOptions = <TError = ErrorType<UnauthorizedResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAttendance>>, TError,{data: BodyType<AttendanceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createAttendance>>, TError,{data: BodyType<AttendanceInput>}, TContext> => {
+
+const mutationKey = ['createAttendance'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAttendance>>, {data: BodyType<AttendanceInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAttendance(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAttendanceMutationResult = NonNullable<Awaited<ReturnType<typeof createAttendance>>>
+    export type CreateAttendanceMutationBody = BodyType<AttendanceInput>
+    export type CreateAttendanceMutationError = ErrorType<UnauthorizedResponse>
+
+    /**
+ * @summary Record a manual check-in
+ */
+export const useCreateAttendance = <TError = ErrorType<UnauthorizedResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAttendance>>, TError,{data: BodyType<AttendanceInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createAttendance>>,
+        TError,
+        {data: BodyType<AttendanceInput>},
+        TContext
+      > => {
+      return useMutation(getCreateAttendanceMutationOptions(options));
+    }
+
+export const getCheckoutAttendanceUrl = (id: string,) => {
+
+
+
+
+  return `/api/attendance/${id}/checkout`
+}
+
+/**
+ * @summary Record a check-out
+ */
+export const checkoutAttendance = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Attendance> => {
+
+  return customFetch<Attendance>(getCheckoutAttendanceUrl(id),
+  {
+    ...options,
+    method: 'PATCH'
+
+
+  }
+);}
+
+
+
+
+
+export const getCheckoutAttendanceMutationOptions = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof checkoutAttendance>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof checkoutAttendance>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['checkoutAttendance'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof checkoutAttendance>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  checkoutAttendance(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CheckoutAttendanceMutationResult = NonNullable<Awaited<ReturnType<typeof checkoutAttendance>>>
+
+    export type CheckoutAttendanceMutationError = ErrorType<UnauthorizedResponse | NotFoundResponse>
+
+    /**
+ * @summary Record a check-out
+ */
+export const useCheckoutAttendance = <TError = ErrorType<UnauthorizedResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof checkoutAttendance>>, TError,{id: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof checkoutAttendance>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getCheckoutAttendanceMutationOptions(options));
     }
 

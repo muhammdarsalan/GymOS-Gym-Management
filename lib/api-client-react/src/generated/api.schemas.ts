@@ -92,6 +92,87 @@ export interface MemberPatch {
   notes?: string;
 }
 
+export interface MembershipInput {
+  planId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
+
+
+export const PaymentMethod = {
+  Cash: 'Cash',
+  Easypaisa: 'Easypaisa',
+  JazzCash: 'JazzCash',
+  Bank_Transfer: 'Bank Transfer',
+  Card: 'Card',
+} as const;
+
+export type PaymentStatus = typeof PaymentStatus[keyof typeof PaymentStatus];
+
+
+export const PaymentStatus = {
+  completed: 'completed',
+  voided: 'voided',
+} as const;
+
+export interface Payment {
+  id: string;
+  receiptNumber: string;
+  transactionId: string;
+  memberId: string;
+  membershipId?: string | null;
+  amount: number;
+  method: PaymentMethod;
+  date: string;
+  notes: string;
+  status: PaymentStatus;
+}
+
+export type PaymentInputMethod = typeof PaymentInputMethod[keyof typeof PaymentInputMethod];
+
+
+export const PaymentInputMethod = {
+  Cash: 'Cash',
+  Easypaisa: 'Easypaisa',
+  JazzCash: 'JazzCash',
+  Bank_Transfer: 'Bank Transfer',
+  Card: 'Card',
+} as const;
+
+export interface PaymentInput {
+  memberId: string;
+  membershipId?: string | null;
+  amount: number;
+  method: PaymentInputMethod;
+  notes?: string;
+}
+
+export interface VoidPaymentInput {
+  reason: string;
+}
+
+export type AttendanceSource = typeof AttendanceSource[keyof typeof AttendanceSource];
+
+
+export const AttendanceSource = {
+  manual: 'manual',
+  biometric: 'biometric',
+} as const;
+
+export interface Attendance {
+  id: string;
+  memberId: string;
+  checkIn: string;
+  checkOut?: string | null;
+  source: AttendanceSource;
+}
+
+export interface AttendanceInput {
+  memberId: string;
+}
+
 /**
  * Not signed in
  */
