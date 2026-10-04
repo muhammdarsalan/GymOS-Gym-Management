@@ -1,0 +1,80 @@
+appId: com.gymos.app
+---
+# Full GymOS live test. Run with: maestro test .maestro/full-flow.yaml
+# Requires the API server running and reachable at EXPO_PUBLIC_API_URL, and
+# a device/simulator with Expo Go (or a dev build) already pointed at the
+# running Metro bundler.
+#
+# Uses Clerk's documented test mode: any email ending in +clerk_test@...
+# never sends a real email and always accepts the fixed code 424242.
+# https://clerk.com/docs/guides/development/testing/test-emails-and-phones
+# Test mode is on by default for development Clerk instances - no setup
+# needed on your end for this to work.
+
+- launchApp
+- assertVisible: "Create your account"
+- tapOn:
+    below: "Email"
+- inputText: "gymos.e2e+clerk_test@example.com"
+- tapOn:
+    below: "Password"
+- inputText: "GymOSTest!2026"
+- tapOn: "Create account"
+- assertVisible: "Check your email"
+- tapOn:
+    below: "Verification code"
+- inputText: "424242"
+- tapOn: "Verify email"
+
+# Should now be signed in and inside the app
+- assertVisible: "Members"
+- tapOn: "Members"
+- tapOn:
+    id: "add-member-button"
+- assertVisible: "Add member"
+- tapOn:
+    below: "Full name *"
+- inputText: "Maestro Test Member"
+- tapOn:
+    below: "Phone number *"
+- inputText: "03001234567"
+- tapOn: "Save member"
+
+# Record a payment for the member just created
+- assertVisible: "Record full payment"
+- tapOn: "Record full payment"
+- assertVisible: "Payment recorded"
+
+# Check the member in, then out, from the Activity tab
+- tapOn: "Activity"
+- tapOn: "Search by name, phone or ID"
+- inputText: "Maestro Test Member"
+- tapOn: "CHECK IN"
+- assertVisible: "Check out"
+- tapOn: "Check out"
+
+# Reload the app entirely - confirms data is server-backed, not just
+# in-memory from this session
+- stopApp
+- launchApp
+- assertVisible: "Members"
+- tapOn: "Members"
+- inputText: "Maestro Test Member"
+- assertVisible: "Maestro Test Member"
+
+# Sign out and back in - confirms the session/gym binding survives a
+# fresh login, not just an app relaunch
+- tapOn: "More"
+- tapOn: "Log out"
+- assertVisible: "Welcome back"
+- tapOn:
+    below: "Email"
+- inputText: "gymos.e2e+clerk_test@example.com"
+- tapOn:
+    below: "Password"
+- inputText: "GymOSTest!2026"
+- tapOn: "Sign in"
+- assertVisible: "Members"
+- tapOn: "Members"
+- inputText: "Maestro Test Member"
+- assertVisible: "Maestro Test Member"
